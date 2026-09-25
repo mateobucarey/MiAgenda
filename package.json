@@ -11,7 +11,10 @@
     "keystone:start": "node ./node_modules/@keystone-6/core/bin/cli.js start"
   },
   "dependencies": {
+    "@coreui/coreui": "^5.9.0",
+    "@coreui/react": "^5.13.0",
     "@keystone-6/core": "8.1.0",
+    "@popperjs/core": "^2.11.8",
     "@prisma/adapter-better-sqlite3": "7.10.0",
     "@prisma/client": "7.10.0",
     "better-sqlite3": "12.6.0",

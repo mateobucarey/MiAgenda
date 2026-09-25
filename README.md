@@ -1,30 +1,36 @@
 # MiAgenda
 
-Arquitectura full-stack separada:
+Aplicacion web para la gestion de un centro educativo.
 
-- `frontend/`: Next.js, React y TypeScript con App Router.
-- `backend/`: Strapi 5 con SQLite para desarrollo local.
+- Next.js, React y App Router en la raiz del proyecto.
+- CoreUI para los componentes y estilos de la interfaz.
+- KeystoneJS como CMS y API GraphQL.
+- SQLite para desarrollo local.
 
 ## Desarrollo
 
-Frontend:
+Instalar dependencias:
 
 ```powershell
-cd frontend
+npm install
+```
+
+Iniciar Next.js:
+
+```powershell
 npm run dev
 ```
 
 Disponible en http://localhost:3000.
 
-Backend:
+Iniciar KeystoneJS en otra terminal:
 
 ```powershell
-cd backend
-npm run develop
+npm run keystone:dev
 ```
 
-Disponible en http://localhost:1337.
+El Admin UI de KeystoneJS esta disponible en http://localhost:3001.
+La API GraphQL esta disponible en http://localhost:3001/api/graphql.
 
-Para configurar la URL de Strapi en el frontend, copia `frontend/.env.example` como
-`frontend/.env.local`. Los archivos `.env` y las credenciales locales no se versionan.
-hola mundo 
+La base de datos SQLite local se configura mediante `DATABASE_URL` en `.env`.
+Los archivos `.env`, la base de datos local y los artefactos generados no se versionan.
