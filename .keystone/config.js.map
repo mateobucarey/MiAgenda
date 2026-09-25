@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../keystone.js"],
+  "sourcesContent": ["import 'dotenv/config';\r\nimport { config, list } from '@keystone-6/core';\r\nimport { text } from '@keystone-6/core/fields';\r\nimport { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';\r\n\r\nexport default config({\r\n  db: {\r\n    provider: 'sqlite',\r\n    prismaClientOptions: () => ({\r\n      adapter: new PrismaBetterSqlite3({ url: process.env.DATABASE_URL }),\r\n    }),\r\n  },\r\n  lists: {\r\n    KeystoneSystem: list({\r\n      access: () => true,\r\n      fields: {\r\n        systemKey: text({ validation: { isRequired: true } }),\r\n      },\r\n    }),\r\n  },\r\n  ui: {\r\n    isAccessAllowed: () => true,\r\n  },\r\n  server: {\r\n    port: 3001,\r\n  },\r\n});"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,oBAAO;AACP,kBAA6B;AAC7B,oBAAqB;AACrB,oCAAoC;AAEpC,IAAO,uBAAQ,oBAAO;AAAA,EACpB,IAAI;AAAA,IACF,UAAU;AAAA,IACV,qBAAqB,OAAO;AAAA,MAC1B,SAAS,IAAI,kDAAoB,EAAE,KAAK,QAAQ,IAAI,aAAa,CAAC;AAAA,IACpE;AAAA,EACF;AAAA,EACA,OAAO;AAAA,IACL,oBAAgB,kBAAK;AAAA,MACnB,QAAQ,MAAM;AAAA,MACd,QAAQ;AAAA,QACN,eAAW,oBAAK,EAAE,YAAY,EAAE,YAAY,KAAK,EAAE,CAAC;AAAA,MACtD;AAAA,IACF,CAAC;AAAA,EACH;AAAA,EACA,IAAI;AAAA,IACF,iBAAiB,MAAM;AAAA,EACzB;AAAA,EACA,QAAQ;AAAA,IACN,MAAM;AAAA,EACR;AACF,CAAC;",
+  "names": []
+}
