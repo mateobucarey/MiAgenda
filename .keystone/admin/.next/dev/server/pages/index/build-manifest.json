@@ -1,0 +1,32 @@
+{
+  "devFiles": [],
+  "ampDevFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [],
+  "pages": {
+    "/": [
+      "static/chunks/node_modules_next_dist_compiled_14ibvna._.js",
+      "static/chunks/node_modules_next_dist_shared_lib_046bn4k._.js",
+      "static/chunks/node_modules_next_dist_client_01nfwoe._.js",
+      "static/chunks/node_modules_next_dist_0zk-zb1._.js",
+      "static/chunks/node_modules_next_0wapzwr._.js",
+      "static/chunks/node_modules_react-dom_0kla17-._.js",
+      "static/chunks/node_modules_@keystar_ui_dist_0an_0z-._.js",
+      "static/chunks/node_modules_react-aria_dist_private_1h5soha._.js",
+      "static/chunks/node_modules_react-stately_dist_private_0wh50_q._.js",
+      "static/chunks/node_modules_graphql_1g2k7b6._.js",
+      "static/chunks/node_modules_rxjs_dist_esm5_internal_0mugsmk._.js",
+      "static/chunks/node_modules_@apollo_client_0a5sq8-._.js",
+      "static/chunks/node_modules_@keystone-6_core_dist_0zsvmr0._.js",
+      "static/chunks/node_modules_1bu9wi1._.js",
+      "static/chunks/[root-of-the-server]__0433eo6._.js",
+      "static/chunks/_keystone_admin_pages_index_0du2_q-._.js",
+      "static/chunks/turbopack-_keystone_admin_pages_index_09mxz0_._.js"
+    ]
+  },
+  "ampFirstPages": [],
+  "rootMainFilesTree": {},
+  "pagesChunkGroupBootstrapParams": {},
+  "chunkLoadingGlobal": "TURBOPACK"
+}

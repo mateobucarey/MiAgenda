@@ -1,0 +1,83 @@
+.shell {
+  min-height: 100vh;
+  background: #f4f7f6;
+}
+
+.sidebar {
+  --cui-sidebar-width: 16rem;
+  border-right: 1px solid var(--cui-border-color);
+}
+
+.brand {
+  color: #184a43;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: normal;
+}
+
+.main {
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: 16rem;
+}
+
+.header {
+  min-height: 4rem;
+  gap: 1rem;
+  background: var(--cui-body-bg);
+}
+
+.headerTitle {
+  color: #21413d;
+  font-weight: 650;
+}
+
+.userControls {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.userControls form {
+  flex: 0 0 auto;
+}
+
+.userName {
+  overflow: hidden;
+  color: #52635f;
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuButton {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 991.98px) {
+  .main {
+    margin-left: 0;
+  }
+
+  .header {
+    gap: 0.5rem;
+  }
+
+  .userControls {
+    gap: 0.5rem;
+  }
+
+  .userName {
+    max-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .userName {
+    display: none;
+  }
+}

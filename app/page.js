@@ -1,5 +1,5 @@
-import CoreUIDemo from "./coreui-demo";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <CoreUIDemo />;
+  redirect("/dashboard");
 }

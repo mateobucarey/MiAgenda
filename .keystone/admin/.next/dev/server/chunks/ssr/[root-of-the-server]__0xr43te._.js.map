@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/mateo/MiAgenda/.keystone/admin/pages/keystone-systems/index.js"],"sourcesContent":["import { getListPage } from '@keystone-6/core/___internal-do-not-use-will-break-in-patch/admin-ui/pages/ListPage';\n\nexport default getListPage({\"listKey\":\"KeystoneSystem\"});\n"],"names":[],"mappings":";;;;AAAA;;uCAEe,IAAA,0RAAW,EAAC;IAAC,WAAU;AAAgB"}}]
+}

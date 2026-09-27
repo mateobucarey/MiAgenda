@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Mi Agenda",
-  description: "Agenda para un centro educativo",
+  title: "Planificación Docente",
+  description: "Gestión docente de cursos y alumnos",
 };
 
 export default function RootLayout({ children }) {
