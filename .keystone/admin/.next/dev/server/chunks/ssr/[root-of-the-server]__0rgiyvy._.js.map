@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 34, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/mateo/MiAgenda/.keystone/admin/pages/_document.js"],"sourcesContent":["import { Html, Head, Main, NextScript } from 'next/document'\n\nexport default function Document() {\n  return (\n    <Html data-scroll-behavior=\"smooth\">\n      <Head />\n      <body>\n        <Main />\n        <NextScript />\n      </body>\n    </Html>\n  )\n}\n"],"names":["Document"],"mappings":";;;;;AAAA;;;AAEe,SAASA;IACtB,qBACE,qKAAC,iIAAI;QAAC,wBAAqB;;0BACzB,qKAAC,iIAAI;;;;;0BACL,qKAAC;;kCACC,qKAAC,iIAAI;;;;;kCACL,qKAAC,uIAAU;;;;;;;;;;;;;;;;;AAInB"}}]
-}

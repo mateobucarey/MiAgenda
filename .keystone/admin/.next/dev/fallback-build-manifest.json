@@ -1,33 +1,6 @@
 {
   "pages": {
-    "/_app": [
-      "static/chunks/node_modules_next_dist_compiled_14ibvna._.js",
-      "static/chunks/node_modules_next_dist_shared_lib_046bn4k._.js",
-      "static/chunks/node_modules_next_dist_client_01nfwoe._.js",
-      "static/chunks/node_modules_next_dist_0zk-zb1._.js",
-      "static/chunks/node_modules_next_0wapzwr._.js",
-      "static/chunks/node_modules_react-dom_0kla17-._.js",
-      "static/chunks/node_modules_react-stately_dist_private_1qtiflh._.js",
-      "static/chunks/node_modules_react-aria_dist_private_utils_05w3yu9._.js",
-      "static/chunks/node_modules_react-aria_dist_private_interactions_00njb25._.js",
-      "static/chunks/node_modules_react-aria_dist_private_intl_08_d7qq._.js",
-      "static/chunks/node_modules_react-aria_dist_private_overlays_1ruhqrr._.js",
-      "static/chunks/node_modules_react-aria_dist_private_dnd_1zim49d._.js",
-      "static/chunks/node_modules_react-aria_dist_private_09vxc80._.js",
-      "static/chunks/node_modules_@keystar_ui_dist_keystar-ui-table_1qozr0c.js",
-      "static/chunks/node_modules_@keystar_ui_dist_keystar-ui-combobox_0mpbpr4.js",
-      "static/chunks/node_modules_@keystar_ui_dist_19q1hg-._.js",
-      "static/chunks/node_modules_@keystone-6_core_dist_1j35vfs._.js",
-      "static/chunks/node_modules_rxjs_dist_esm5_internal_0fwk7wm._.js",
-      "static/chunks/node_modules_graphql_0gflfxe._.js",
-      "static/chunks/node_modules_@apollo_client_1pycgp_._.js",
-      "static/chunks/node_modules_dumb-passwords_0ev0q4b._.js",
-      "static/chunks/node_modules_@internationalized_date_dist_private_0mp165b._.js",
-      "static/chunks/node_modules_03djarx._.js",
-      "static/chunks/[root-of-the-server]__0m72xxe._.js",
-      "static/chunks/_keystone_admin_pages__app_0du2_q-._.js",
-      "static/chunks/turbopack-_keystone_admin_pages__app_0i63xu-._.js"
-    ]
+    "/_app": []
   },
   "devFiles": [],
   "polyfillFiles": [],
@@ -38,6 +11,5 @@
   ],
   "rootMainFiles": [],
   "rootMainFilesTree": {},
-  "pagesChunkGroupBootstrapParams": {},
-  "chunkLoadingGlobal": "TURBOPACK"
+  "pagesChunkGroupBootstrapParams": {}
 }

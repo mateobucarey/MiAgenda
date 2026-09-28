@@ -1,13 +1,4 @@
 self.__BUILD_MANIFEST = {
-  "/": [
-    "static/chunks/pages/index.js"
-  ],
-  "/keystone-systems": [
-    "static/chunks/pages/keystone-systems.js"
-  ],
-  "/signin": [
-    "static/chunks/pages/signin.js"
-  ],
   "__rewrites": {
     "afterFiles": [],
     "beforeFiles": [],

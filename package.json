@@ -8,7 +8,8 @@
     "start": "next start",
     "keystone:dev": "node ./node_modules/@keystone-6/core/bin/cli.js dev",
     "keystone:build": "node ./node_modules/@keystone-6/core/bin/cli.js build",
-    "keystone:start": "node ./node_modules/@keystone-6/core/bin/cli.js start"
+    "keystone:start": "node ./node_modules/@keystone-6/core/bin/cli.js start",
+    "seed": "node --experimental-strip-types scripts/seed.mjs"
   },
   "dependencies": {
     "@coreui/coreui": "^5.9.0",

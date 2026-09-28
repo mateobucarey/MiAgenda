@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/mateo/MiAgenda/.keystone/admin/pages/signin.js"],"sourcesContent":["import makeSigninPage from '@keystone-6/auth/pages/SigninPage'\n\nexport default makeSigninPage({\"authGqlNames\":{\"itemQueryName\":\"user\",\"whereUniqueInputName\":\"UserWhereUniqueInput\",\"authenticateItemWithPassword\":\"authenticateUserWithPassword\",\"ItemAuthenticationWithPasswordResult\":\"UserAuthenticationWithPasswordResult\",\"ItemAuthenticationWithPasswordSuccess\":\"UserAuthenticationWithPasswordSuccess\",\"ItemAuthenticationWithPasswordFailure\":\"UserAuthenticationWithPasswordFailure\"},\"identityField\":\"email\",\"secretField\":\"password\"})\n"],"names":[],"mappings":";;;;AAAA;;uCAEe,IAAA,mMAAc,EAAC;IAAC,gBAAe;QAAC,iBAAgB;QAAO,wBAAuB;QAAuB,gCAA+B;QAA+B,wCAAuC;QAAuC,yCAAwC;QAAwC,yCAAwC;IAAuC;IAAE,iBAAgB;IAAQ,eAAc;AAAU"}}]
-}
