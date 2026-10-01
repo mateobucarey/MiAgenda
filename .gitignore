@@ -18,6 +18,7 @@
 /out/
 
 # keystone
+/.keystone/
 /generated/
 /schema.prisma
 /schema.graphql
