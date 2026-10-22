@@ -1,21 +1,11 @@
 import { redirect } from "next/navigation";
 import PrivateShell from "./private-shell";
-import {
-  authenticatedUserQuery,
-  getLoginPath,
-  getKeystoneSessionToken,
-  requestKeystone,
-} from "../lib/keystone";
+import { getSessionUser } from "../lib/auth";
 
 export default async function PrivateLayout({ children }) {
-  const sessionToken = await getKeystoneSessionToken();
+  const user = await getSessionUser();
 
-  if (!sessionToken) redirect(getLoginPath());
-
-  const result = await requestKeystone(authenticatedUserQuery, sessionToken);
-  const user = result.data?.authenticatedItem;
-
-  if (!user) redirect(getLoginPath());
+  if (!user) redirect("/login");
 
   return <PrivateShell user={user}>{children}</PrivateShell>;
 }

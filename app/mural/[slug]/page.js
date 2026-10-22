@@ -1,46 +1,6 @@
 import { notFound } from "next/navigation";
+import { getMuralPublico } from "../../lib/data/mural";
 import styles from "./page.module.css";
-
-const publicMuralQuery = `
-  query PublicMural($slug: String!) {
-    publicMural(slug: $slug) {
-      slug
-      titulo
-      descripcion
-      informacionGeneral
-      cursoNombre
-      cursoDescripcion
-      temas { titulo descripcion orden }
-      examenes { titulo descripcion fecha informacionAdicional }
-      avisos { titulo contenido fecha }
-    }
-  }
-`;
-
-async function getPublicMural(slug) {
-  const endpoint = process.env.KEYSTONE_GRAPHQL_URL
-    || "http://localhost:3001/api/graphql";
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: publicMuralQuery,
-      variables: { slug },
-    }),
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("No se pudo consultar el mural público.");
-  }
-
-  const result = await response.json();
-  if (result.errors?.length) {
-    throw new Error("No se pudo consultar el mural público.");
-  }
-
-  return result.data?.publicMural || null;
-}
 
 function formatDate(value) {
   return new Intl.DateTimeFormat("es-AR", {
@@ -55,7 +15,7 @@ function EmptySection({ children }) {
 
 export default async function PublicCourseMural({ params }) {
   const { slug } = await params;
-  const mural = await getPublicMural(slug);
+  const mural = await getMuralPublico(slug);
 
   if (!mural) notFound();
 

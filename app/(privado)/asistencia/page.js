@@ -1,25 +1,14 @@
-import { queryAsCurrentUser } from "../../lib/keystone";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "../../lib/auth";
+import { getAsistenciasDelDocente } from "../../lib/data/asistencias";
 import { AttendanceView } from "../page-views";
-
-const attendanceQuery = `
-  query MyAttendance {
-    cursos {
-      id
-      nombre
-      asistencias {
-        id
-        fecha
-        estado
-        alumno { nombre apellido }
-      }
-    }
-  }
-`;
 
 export const metadata = { title: "Asistencia | Planificación Docente" };
 
 export default async function AttendancePage() {
-  const data = await queryAsCurrentUser(attendanceQuery);
-  const courses = data?.cursos || [];
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+
+  const courses = await getAsistenciasDelDocente(user.id);
   return <AttendanceView courses={courses} />;
 }

@@ -1,21 +1,45 @@
-# Planificacion Docente
+# Planificación Docente
 
-Aplicacion web para la planificacion y gestion docente.
+Aplicación web para la planificación y gestión docente.
 
-- Next.js, React y App Router en la raiz del proyecto.
+- Next.js, React y App Router.
 - CoreUI para los componentes y estilos de la interfaz.
-- KeystoneJS como CMS, API GraphQL y autenticacion.
-- SQLite para desarrollo local.
+- PostgreSQL como base de datos, con Prisma ORM.
+- Autenticación propia: contraseñas con `scrypt` y sesiones con JWT firmado (`jose`) en cookie HttpOnly.
 
 ## Desarrollo
 
-Instalar dependencias:
+Requisitos: Node.js y PostgreSQL corriendo en local.
+
+1. Crear la base de datos (una sola vez), por ejemplo con pgAdmin o con psql:
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -c "CREATE DATABASE mi_agenda;"
+```
+
+2. Copiar `.env.example` como `.env` y completar los valores:
+
+```powershell
+copy .env.example .env
+```
+
+- `DATABASE_URL`: conexión a la base local, por ejemplo `postgresql://postgres:TU_CLAVE@localhost:5432/mi_agenda`.
+- `SESSION_SECRET`: valor aleatorio de al menos 32 caracteres (obligatorio en producción; en desarrollo se usa una clave fija solo para desarrollo si se omite).
+
+3. Instalar dependencias y aplicar las migraciones del esquema:
 
 ```powershell
 npm install
+npm run db:migrate
 ```
 
-Iniciar Next.js:
+4. (Opcional) Cargar datos de prueba:
+
+```powershell
+npm run seed
+```
+
+5. Iniciar la aplicación:
 
 ```powershell
 npm run dev
@@ -23,76 +47,43 @@ npm run dev
 
 Disponible en http://localhost:3000.
 
-Iniciar KeystoneJS en otra terminal:
-
-```powershell
-npm run keystone:dev
-```
-
-El Admin UI de KeystoneJS esta disponible en http://localhost:3001.
-La API GraphQL esta disponible en http://localhost:3001/api/graphql.
-
-La base de datos SQLite local se configura mediante `DATABASE_URL` en `.env`.
-En produccion tambien es obligatorio definir `SESSION_SECRET` con un valor aleatorio de al menos 32 caracteres. En desarrollo local Keystone usa una clave fija solo para desarrollo si no se define esa variable.
-Los archivos `.env`, la base de datos local y los artefactos generados no se versionan.
-
-## Primer docente y prueba de acceso
-
-1. Iniciar Keystone con `npm run keystone:dev`.
-2. Mientras no haya usuarios, el Admin UI permite el acceso inicial. Abrir http://localhost:3001 y crear el primer registro de `User` con nombre, apellido, email y contraseña.
-3. Cerrar la sesion y volver a ingresar con el email y la contraseña creados. Tambien se puede probar desde una ventana privada del navegador.
-4. Una vez creado el primer usuario, el Admin UI exige iniciar sesion. La API GraphQL permite autenticar mediante `authenticateUserWithPassword` en http://localhost:3001/api/graphql.
-
-Como alternativa para no crear el primer usuario a mano, se puede usar el seed de datos de prueba descripto abajo.
+Los archivos `.env`, la base de datos y los artefactos generados no se versionan.
 
 ## Datos de prueba (seed)
 
-El proyecto incluye un script de seed reproducible ([scripts/seed.mjs](scripts/seed.mjs)) para poder probar la aplicacion apenas se clona el repositorio, sin depender de cargar datos manualmente. El seed es idempotente: se puede ejecutar mas de una vez sin crear duplicados, y nunca borra ni modifica datos existentes.
+El script de seed ([scripts/seed.mjs](scripts/seed.mjs)) es idempotente: se puede ejecutar más de una vez sin crear duplicados, y nunca borra ni modifica datos existentes.
 
-### 1. Como ejecutar el seed
+### Usuario de prueba que se crea
 
-```powershell
-npm install
-copy .env.example .env
-npm run keystone:dev
-```
-
-Esperar a que la terminal muestre `Admin UI ready` (esto sincroniza la base SQLite local y genera el cliente de Prisma). Dejar esa terminal abierta y, en otra terminal, ejecutar:
-
-```powershell
-npm run seed
-```
-
-El script se conecta directamente a la base local mediante el contexto de Keystone (no necesita que Next.js este corriendo). Al finalizar imprime un resumen de lo creado y lo que ya existia.
-
-### 2. Usuario de prueba que se crea
-
-- Nombre: Juan Perez
+- Nombre: Juan Pérez
 - Email: `docente.prueba@demo.com`
-- Perfil docente completo (DNI, telefono, fecha de nacimiento, direccion, institucion, cargo, localidad y provincia).
+- Contraseña: `Demo12345!`
 
-### 3. Contraseña de prueba
+Es una contraseña de demostración, no un secreto real. Se puede reemplazar definiendo `SEED_TEACHER_PASSWORD` en `.env` antes de ejecutar el seed por primera vez.
 
-`Demo12345!`
+### Datos que se crean
 
-Es una contraseña de demostracion, no un secreto real. Se puede reemplazar definiendo `SEED_TEACHER_PASSWORD` en `.env` antes de ejecutar el seed por primera vez (ver [.env.example](.env.example)). Cambiar la contraseña luego de ejecutar el seed no la modifica retroactivamente: hay que actualizarla desde el Admin UI o eliminando el usuario de la base local.
-
-### 4. Cursos y datos que se crean
-
-Para el docente de prueba se crean 2 cursos, cada uno con 5 alumnos ficticios (apellido `Demo` y DNI con prefijo `DEMO...`), asistencias en 3 fechas distintas con los 4 estados (presente, ausente, tarde, justificado), 2 evaluaciones calificadas por alumno, y un mural publico con 3 temas, 2 fechas de examen y 2 avisos (uno publicado y uno sin publicar, para poder verificar que el mural publico solo muestra el publicado):
+Para el docente de prueba se crean 2 cursos, cada uno con 5 alumnos ficticios, asistencias en 3 fechas con los 4 estados, 2 evaluaciones calificadas por alumno, y un mural público con temas, exámenes y avisos (uno publicado y uno sin publicar, para verificar que el mural público solo muestra el publicado):
 
 - **1° A - Matemática** — mural: `demo-1a-matematica`
 - **2° B - Matemática** — mural: `demo-2b-matematica`
 
-### 5. Como acceder al mural publico de los cursos de prueba
+### Murales públicos
 
-Sin iniciar sesion, abrir:
+Sin iniciar sesión:
 
 - http://localhost:3000/mural/demo-1a-matematica
 - http://localhost:3000/mural/demo-2b-matematica
 
-### 6. Como verificar el QR
+El código QR de cada mural se ve desde **Mis cursos** → curso → sección **Acceso al mural**.
 
-Iniciar sesion en http://localhost:3000/login con las credenciales de prueba, entrar a **Mis cursos**, abrir uno de los cursos de prueba y revisar la seccion **Acceso al mural**: debe mostrar el codigo QR, la URL publica del mural (la misma que en el punto anterior) y un boton para copiarla.
+## Sesiones
 
-La cookie de sesion se llama `mi-agenda-session`, tiene alcance `/` y dura ocho horas. Next.js puede reutilizarla en solicitudes al backend Keystone reenviando la cookie desde el servidor; ambos servicios deben usar el mismo hostname. La integracion de autenticacion en las paginas de Next.js queda para una etapa posterior.
+La cookie de sesión se llama `mi-agenda-session`, es HttpOnly, `SameSite=Lax`, `Secure` en producción, tiene alcance `/` y dura ocho horas.
+
+## Servicios externos
+
+- Feriados nacionales de Argentina: [ArgentinaDatos API](https://api.argentinadatos.com/v1/feriados).
+- Clima: [Open-Meteo](https://open-meteo.com/) (geocodificación y pronóstico).
+
+Ambas son públicas, no requieren API key y se consultan desde el servidor de Next.js.

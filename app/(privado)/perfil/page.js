@@ -1,22 +1,15 @@
 import { redirect } from "next/navigation";
 import ProfileForm from "./profile-form";
-import {
-  authenticatedUserProfileQuery,
-  getLoginPath,
-  getKeystoneSessionToken,
-  requestKeystone,
-} from "../../lib/keystone";
+import { getSessionUser } from "../../lib/auth";
 
 export const metadata = {
   title: "Mi perfil | Planificación Docente",
 };
 
 export default async function ProfilePage() {
-  const sessionToken = await getKeystoneSessionToken();
-  const result = await requestKeystone(authenticatedUserProfileQuery, sessionToken);
-  const profile = result.data?.authenticatedItem;
+  const profile = await getSessionUser();
 
-  if (!profile) redirect(getLoginPath());
+  if (!profile) redirect("/login");
 
   return <ProfileForm profile={profile} />;
 }

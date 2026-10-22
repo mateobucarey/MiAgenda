@@ -1,38 +1,19 @@
 // Seed de datos de prueba para "Planificacion Docente".
 // Uso: npm run seed
 //
-// Este script usa el contexto de Keystone directamente (sin pasar por HTTP),
-// con `context.sudo()` para saltear las reglas de acceso normales (que solo
-// permiten crear el primer User cuando no hay ninguno). Es idempotente: antes
-// de crear cada registro busca si ya existe uno equivalente y, si lo
-// encuentra, lo reutiliza en lugar de duplicarlo. Nunca borra ni modifica
-// datos existentes.
+// Este script usa Prisma directamente contra la base PostgreSQL configurada
+// en DATABASE_URL. Es idempotente: antes de crear cada registro busca si ya
+// existe uno equivalente y, si lo encuentra, lo reutiliza en lugar de
+// duplicarlo. Nunca borra ni modifica datos existentes.
 //
-// Requiere que exista `generated/prisma/client.ts`, generado por Keystone al
-// ejecutar `npm run keystone:dev` (o `keystone:build`) al menos una vez.
+// Requiere haber aplicado las migraciones: npx prisma migrate dev
 
 import 'dotenv/config';
-import { getContext } from '@keystone-6/core/context';
-import keystoneConfig from '../keystone.js';
-import * as PrismaModule from '../generated/prisma/client.ts';
+import { prisma } from '../app/lib/db.js';
+import { hashPassword } from '../app/lib/passwords.js';
 
 const TEACHER_EMAIL = 'docente.prueba@demo.com';
 const TEACHER_PASSWORD = process.env.SEED_TEACHER_PASSWORD || 'Demo12345!';
-
-const TEACHER_DATA = {
-  nombre: 'Juan',
-  apellido: 'Pérez',
-  email: TEACHER_EMAIL,
-  password: TEACHER_PASSWORD,
-  dni: '20345678',
-  telefono: '+54 299 400-1234',
-  fechaNacimiento: '1985-03-14',
-  direccion: 'Av. Argentina 123, Neuquén Capital',
-  institucionEducativa: 'Escuela Normal Superior N.º 1',
-  cargoDocente: 'Profesor de Matemática',
-  localidad: 'Neuquén Capital',
-  provincia: 'Neuquén',
-};
 
 const EVALUACIONES_DEMO = [
   { evaluacion: 'Trabajo práctico 1 (demo)', fecha: '2026-04-06' },
@@ -112,85 +93,95 @@ const ESTADOS_ASISTENCIA = ['presente', 'ausente', 'tarde', 'justificado'];
 
 const summary = { created: {}, skipped: {} };
 
-function track(listKey, wasCreated) {
+function track(label, wasCreated) {
   const bucket = wasCreated ? summary.created : summary.skipped;
-  bucket[listKey] = (bucket[listKey] || 0) + 1;
+  bucket[label] = (bucket[label] || 0) + 1;
 }
 
-async function ensureByUnique(model, listKey, uniqueWhere, data) {
-  const existing = await model.findOne({ where: uniqueWhere });
+async function seedTeacher() {
+  const existing = await prisma.user.findUnique({ where: { email: TEACHER_EMAIL } });
   if (existing) {
-    track(listKey, false);
+    track('User (docente)', false);
     return existing;
   }
-  const created = await model.createOne({ data });
-  track(listKey, true);
-  return created;
-}
 
-async function ensureByFilter(model, listKey, filterWhere, data) {
-  const [existing] = await model.findMany({ where: filterWhere, take: 1 });
-  if (existing) {
-    track(listKey, false);
-    return existing;
-  }
-  const created = await model.createOne({ data });
-  track(listKey, true);
-  return created;
-}
-
-async function seedTeacher(db) {
-  return ensureByUnique(
-    db.User,
-    'User (docente)',
-    { email: TEACHER_EMAIL },
-    TEACHER_DATA,
-  );
-}
-
-async function seedCourse(db, teacherId, courseDef) {
-  const curso = await ensureByFilter(
-    db.Curso,
-    'Curso',
-    {
-      nombre: { equals: courseDef.nombre },
-      cicloLectivo: { equals: courseDef.cicloLectivo },
-      docenteResponsable: { id: { equals: teacherId } },
+  const created = await prisma.user.create({
+    data: {
+      nombre: 'Juan',
+      apellido: 'Pérez',
+      email: TEACHER_EMAIL,
+      password: await hashPassword(TEACHER_PASSWORD),
+      dni: '20345678',
+      telefono: '+54 299 400-1234',
+      fechaNacimiento: '1985-03-14',
+      direccion: 'Av. Argentina 123, Neuquén Capital',
+      institucionEducativa: 'Escuela Normal Superior N.º 1',
+      cargoDocente: 'Profesor de Matemática',
+      localidad: 'Neuquén Capital',
+      provincia: 'Neuquén',
     },
-    {
+  });
+  track('User (docente)', true);
+  return created;
+}
+
+async function seedCourse(teacherId, courseDef) {
+  let curso = await prisma.curso.findFirst({
+    where: {
       nombre: courseDef.nombre,
-      descripcion: courseDef.descripcion,
       cicloLectivo: courseDef.cicloLectivo,
-      estado: 'activo',
-      docenteResponsable: { connect: { id: teacherId } },
+      docenteResponsableId: teacherId,
     },
-  );
+  });
+
+  if (curso) {
+    track('Curso', false);
+  } else {
+    curso = await prisma.curso.create({
+      data: {
+        nombre: courseDef.nombre,
+        descripcion: courseDef.descripcion,
+        cicloLectivo: courseDef.cicloLectivo,
+        estado: 'activo',
+        docenteResponsable: { connect: { id: teacherId } },
+      },
+    });
+    track('Curso', true);
+  }
 
   const alumnos = [];
   for (const estudiante of courseDef.estudiantes) {
-    const alumno = await ensureByUnique(
-      db.Alumno,
-      'Alumno',
-      { dni: estudiante.dni },
-      { ...estudiante, curso: { connect: { id: curso.id } } },
-    );
+    let alumno = await prisma.alumno.findUnique({ where: { dni: estudiante.dni } });
+    if (alumno) {
+      track('Alumno', false);
+    } else {
+      alumno = await prisma.alumno.create({
+        data: { ...estudiante, curso: { connect: { id: curso.id } } },
+      });
+      track('Alumno', true);
+    }
     alumnos.push(alumno);
   }
 
   for (const [dateIndex, fecha] of courseDef.fechasAsistencia.entries()) {
     for (const [studentIndex, alumno] of alumnos.entries()) {
       const estado = ESTADOS_ASISTENCIA[(dateIndex + studentIndex) % ESTADOS_ASISTENCIA.length];
-      await ensureByFilter(
-        db.Asistencia,
-        'Asistencia',
-        { alumno: { id: { equals: alumno.id } }, fecha: { equals: fecha } },
-        {
-          alumno: { connect: { id: alumno.id } },
-          curso: { connect: { id: curso.id } },
-          fecha,
-          estado,
-        },
-      );
+      const existing = await prisma.asistencia.findFirst({
+        where: { alumnoId: alumno.id, fecha },
+      });
+      if (existing) {
+        track('Asistencia', false);
+      } else {
+        await prisma.asistencia.create({
+          data: {
+            alumno: { connect: { id: alumno.id } },
+            curso: { connect: { id: curso.id } },
+            fecha,
+            estado,
+          },
+        });
+        track('Asistencia', true);
+      }
     }
   }
 
@@ -198,79 +189,100 @@ async function seedCourse(db, teacherId, courseDef) {
     for (const [studentIndex, alumno] of alumnos.entries()) {
       const nota = courseDef.notasPorEvaluacion[evalIndex][studentIndex];
       const observacion = nota < 7 ? 'Se recomienda repasar los contenidos de la unidad.' : '';
-      await ensureByFilter(
-        db.Calificacion,
-        'Calificacion',
-        {
-          alumno: { id: { equals: alumno.id } },
-          evaluacion: { equals: evaluacionDef.evaluacion },
-          fecha: { equals: evaluacionDef.fecha },
-        },
-        {
-          alumno: { connect: { id: alumno.id } },
-          curso: { connect: { id: curso.id } },
+      const existing = await prisma.calificacion.findFirst({
+        where: {
+          alumnoId: alumno.id,
           evaluacion: evaluacionDef.evaluacion,
-          nota,
-          observacion,
           fecha: evaluacionDef.fecha,
         },
-      );
+      });
+      if (existing) {
+        track('Calificacion', false);
+      } else {
+        await prisma.calificacion.create({
+          data: {
+            alumno: { connect: { id: alumno.id } },
+            curso: { connect: { id: curso.id } },
+            evaluacion: evaluacionDef.evaluacion,
+            nota,
+            observacion,
+            fecha: evaluacionDef.fecha,
+          },
+        });
+        track('Calificacion', true);
+      }
     }
   }
 
-  const mural = await ensureByUnique(
-    db.Mural,
-    'Mural',
-    { slug: courseDef.mural.slug },
-    {
-      slug: courseDef.mural.slug,
-      titulo: courseDef.mural.titulo,
-      descripcion: courseDef.mural.descripcion,
-      informacionGeneral: courseDef.mural.informacionGeneral,
-      curso: { connect: { id: curso.id } },
-    },
-  );
+  let mural = await prisma.mural.findUnique({ where: { slug: courseDef.mural.slug } });
+  if (mural) {
+    track('Mural', false);
+  } else {
+    // Conectar el curso desde el mural actualiza la FK 1:1 en Curso.
+    mural = await prisma.mural.create({
+      data: {
+        slug: courseDef.mural.slug,
+        titulo: courseDef.mural.titulo,
+        descripcion: courseDef.mural.descripcion,
+        informacionGeneral: courseDef.mural.informacionGeneral,
+        curso: { connect: { id: curso.id } },
+      },
+    });
+    track('Mural', true);
+  }
 
   for (const tema of courseDef.mural.temas) {
-    await ensureByFilter(
-      db.TemaMural,
-      'TemaMural',
-      { mural: { id: { equals: mural.id } }, titulo: { equals: tema.titulo } },
-      { ...tema, mural: { connect: { id: mural.id } } },
-    );
+    const existing = await prisma.temaMural.findFirst({
+      where: { muralId: mural.id, titulo: tema.titulo },
+    });
+    if (existing) {
+      track('TemaMural', false);
+    } else {
+      await prisma.temaMural.create({
+        data: { ...tema, mural: { connect: { id: mural.id } } },
+      });
+      track('TemaMural', true);
+    }
   }
 
   for (const examen of courseDef.mural.examenes) {
-    await ensureByFilter(
-      db.ExamenMural,
-      'ExamenMural',
-      { mural: { id: { equals: mural.id } }, titulo: { equals: examen.titulo } },
-      { ...examen, mural: { connect: { id: mural.id } } },
-    );
+    const existing = await prisma.examenMural.findFirst({
+      where: { muralId: mural.id, titulo: examen.titulo },
+    });
+    if (existing) {
+      track('ExamenMural', false);
+    } else {
+      await prisma.examenMural.create({
+        data: { ...examen, mural: { connect: { id: mural.id } } },
+      });
+      track('ExamenMural', true);
+    }
   }
 
   for (const aviso of courseDef.mural.avisos) {
-    await ensureByFilter(
-      db.Aviso,
-      'Aviso',
-      { mural: { id: { equals: mural.id } }, titulo: { equals: aviso.titulo } },
-      { ...aviso, mural: { connect: { id: mural.id } } },
-    );
+    const existing = await prisma.aviso.findFirst({
+      where: { muralId: mural.id, titulo: aviso.titulo },
+    });
+    if (existing) {
+      track('Aviso', false);
+    } else {
+      await prisma.aviso.create({
+        data: { ...aviso, mural: { connect: { id: mural.id } } },
+      });
+      track('Aviso', true);
+    }
   }
 
   return { curso, mural };
 }
 
 async function main() {
-  const context = getContext(keystoneConfig, PrismaModule);
-  const db = context.sudo().db;
-
   try {
-    const teacher = await seedTeacher(db);
+    const teacher = await seedTeacher();
 
     const results = [];
     for (const courseDef of COURSES_DEMO) {
-      results.push(await seedCourse(db, teacher.id, courseDef));
+      results.push(await seedCourse(teacher.id, courseDef));
     }
 
     console.log('\nSeed de datos de prueba completado.\n');
@@ -284,7 +296,7 @@ async function main() {
       console.log(`  http://localhost:3000/mural/${mural.slug}`);
     }
   } finally {
-    await context.prisma.$disconnect();
+    await prisma.$disconnect();
   }
 }
 

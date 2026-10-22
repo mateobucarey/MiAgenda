@@ -1,36 +1,21 @@
-import { queryAsCurrentUser } from "../../lib/keystone";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "../../lib/auth";
+import { getCursosDelDocente } from "../../lib/data/cursos";
 import { getProximosFeriados } from "../../lib/feriados";
 import { getClima } from "../../lib/clima";
 import { DashboardView } from "../page-views";
 
-const dashboardQuery = `
-  query DashboardSummary {
-    authenticatedItem {
-      localidad
-      provincia
-    }
-    cursos {
-      id
-      nombre
-      cicloLectivo
-      estado
-      alumnosCount
-    }
-  }
-`;
-
 export const metadata = { title: "Inicio | Planificación Docente" };
 
 export default async function DashboardPage() {
-  const data = await queryAsCurrentUser(dashboardQuery);
-  const courses = data?.cursos || [];
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+
+  const courses = await getCursosDelDocente(user.id);
 
   const [feriadosResult, climaResult] = await Promise.all([
     getProximosFeriados(),
-    getClima({
-      localidad: data?.authenticatedItem?.localidad,
-      provincia: data?.authenticatedItem?.provincia,
-    }),
+    getClima({ localidad: user.localidad, provincia: user.provincia }),
   ]);
 
   return (
