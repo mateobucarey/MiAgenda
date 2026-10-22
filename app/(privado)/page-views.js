@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   CAlert,
+  CBadge,
   CButton,
   CCard,
   CCardBody,
@@ -12,7 +13,30 @@ import {
 } from "@coreui/react";
 import MuralQrCard from "./cursos/[id]/mural-qr-card";
 
-export function DashboardView({ courses }) {
+function formatFeriadoFecha(value) {
+  return new Intl.DateTimeFormat("es-AR", {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+function formatDiaClima(value, index) {
+  if (index === 0) return "Hoy";
+  return new Intl.DateTimeFormat("es-AR", {
+    weekday: "long",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+const formatTemperatura = (value) => (value == null ? "-" : `${Math.round(value)}°`);
+
+export function DashboardView({
+  courses,
+  feriados = [],
+  feriadosError = null,
+  clima = null,
+  climaError = null,
+}) {
   const studentCount = courses.reduce((total, course) => total + (course.alumnosCount || 0), 0);
 
   return (
@@ -38,6 +62,88 @@ export function DashboardView({ courses }) {
               <div className="small text-body-secondary">Alumnos en tus cursos</div>
               <div className="display-6 fw-semibold">{studentCount}</div>
               <span className="small text-body-secondary">Total según las inscripciones actuales</span>
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol sm={6} xl={4}>
+          <CCard className="h-100">
+            <CCardHeader className="fw-semibold">Próximos feriados</CCardHeader>
+            <CCardBody>
+              {feriadosError ? (
+                <CAlert color="light" className="mb-0">{feriadosError}</CAlert>
+              ) : feriados.length ? (
+                <ul className="list-unstyled mb-0">
+                  {feriados.map((feriado, index) => (
+                    <li
+                      key={`${feriado.fecha}-${feriado.nombre}`}
+                      className={`d-flex align-items-start justify-content-between gap-3 py-2${index < feriados.length - 1 ? " border-bottom" : ""}`}
+                    >
+                      <div>
+                        <div className="fw-semibold">{feriado.nombre}</div>
+                        <div className="small text-body-secondary">
+                          {formatFeriadoFecha(feriado.fecha)}
+                        </div>
+                      </div>
+                      {feriado.tipo && (
+                        <CBadge color="secondary" className="text-nowrap text-capitalize">
+                          {feriado.tipo}
+                        </CBadge>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <CAlert color="info" className="mb-0">
+                  No hay feriados próximos para mostrar.
+                </CAlert>
+              )}
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol sm={6} xl={4}>
+          <CCard className="h-100">
+            <CCardHeader className="fw-semibold">
+              Clima{clima?.localidadNombre ? ` en ${clima.localidadNombre}` : ""}
+            </CCardHeader>
+            <CCardBody>
+              {climaError ? (
+                <CAlert color="light" className="mb-0">
+                  {climaError}{" "}
+                  <Link href="/perfil" className="alert-link">Ir a mi perfil</Link>
+                </CAlert>
+              ) : clima ? (
+                <>
+                  <div className="d-flex align-items-baseline gap-2 mb-1">
+                    <span className="display-6 fw-semibold">
+                      {formatTemperatura(clima.temperatura)}
+                    </span>
+                    <span className="text-body-secondary">{clima.descripcion}</span>
+                  </div>
+                  {clima.humedad != null && (
+                    <div className="small text-body-secondary mb-3">
+                      Humedad {clima.humedad}%
+                    </div>
+                  )}
+                  <ul className="list-unstyled mb-0">
+                    {clima.dias.map((dia, index) => (
+                      <li
+                        key={dia.fecha}
+                        className={`d-flex align-items-center justify-content-between gap-3 py-2${index < clima.dias.length - 1 ? " border-bottom" : ""}`}
+                      >
+                        <span className="text-capitalize">{formatDiaClima(dia.fecha, index)}</span>
+                        <span className="small text-nowrap">
+                          {formatTemperatura(dia.maxima)} / {formatTemperatura(dia.minima)}
+                          {dia.probabilidadLluvia != null && (
+                            <span className="text-body-secondary"> · {dia.probabilidadLluvia}% lluvia</span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <CAlert color="info" className="mb-0">No hay datos del clima para mostrar.</CAlert>
+              )}
             </CCardBody>
           </CCard>
         </CCol>
