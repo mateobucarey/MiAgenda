@@ -17,11 +17,8 @@
 /.next/
 /out/
 
-# keystone
-/.keystone/
+# artefactos generados
 /generated/
-/schema.prisma
-/schema.graphql
 /keystone.db*
 
 # production

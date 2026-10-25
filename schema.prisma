@@ -1,0 +1,136 @@
+// Esquema propio de "Mi agenda (Planificador Docente)".
+// Base de datos: PostgreSQL. Los cambios se aplican con migraciones:
+//   npx prisma migrate dev
+// No editar la base a mano; toda modificación pasa por este archivo.
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+model User {
+  id                   String  @id @default(cuid())
+  nombre               String  @default("")
+  apellido             String  @default("")
+  email                String  @unique @default("")
+  password             String
+  dni                  String  @default("")
+  telefono             String  @default("")
+  fechaNacimiento      String?
+  direccion            String  @default("")
+  institucionEducativa String  @default("")
+  cargoDocente         String  @default("")
+  localidad            String  @default("")
+  provincia            String  @default("")
+  cursos               Curso[] @relation("Curso_docenteResponsable")
+}
+
+model Curso {
+  id                   String         @id @default(cuid())
+  nombre               String         @default("")
+  descripcion          String         @default("")
+  cicloLectivo         Int
+  docenteResponsable   User           @relation("Curso_docenteResponsable", fields: [docenteResponsableId], references: [id])
+  docenteResponsableId String         @map("docenteResponsable")
+  estado               String         @default("activo")
+  alumnos              Alumno[]       @relation("Alumno_curso")
+  asistencias          Asistencia[]   @relation("Asistencia_curso")
+  calificaciones       Calificacion[] @relation("Calificacion_curso")
+  mural                Mural?         @relation("Curso_mural", fields: [muralId], references: [id])
+  muralId              String?        @unique @map("mural")
+
+  @@index([docenteResponsableId])
+}
+
+model Alumno {
+  id             String         @id @default(cuid())
+  nombre         String         @default("")
+  apellido       String         @default("")
+  dni            String         @unique @default("")
+  email          String         @default("")
+  curso          Curso          @relation("Alumno_curso", fields: [cursoId], references: [id], onDelete: Cascade)
+  cursoId        String         @map("curso")
+  asistencias    Asistencia[]   @relation("Asistencia_alumno")
+  calificaciones Calificacion[] @relation("Calificacion_alumno")
+
+  @@index([cursoId])
+}
+
+model Mural {
+  id                 String        @id @default(cuid())
+  slug               String        @unique @default("")
+  titulo             String        @default("")
+  descripcion        String        @default("")
+  informacionGeneral String        @default("")
+  curso              Curso?        @relation("Curso_mural")
+  temas              TemaMural[]   @relation("TemaMural_mural")
+  examenes           ExamenMural[] @relation("ExamenMural_mural")
+  avisos             Aviso[]       @relation("Aviso_mural")
+}
+
+model TemaMural {
+  id          String  @id @default(cuid())
+  titulo      String  @default("")
+  descripcion String  @default("")
+  orden       Int     @default(0)
+  mural       Mural   @relation("TemaMural_mural", fields: [muralId], references: [id], onDelete: Cascade)
+  muralId     String  @map("mural")
+
+  @@index([muralId])
+}
+
+model ExamenMural {
+  id                   String  @id @default(cuid())
+  titulo               String  @default("")
+  descripcion          String  @default("")
+  fecha                String
+  informacionAdicional String  @default("")
+  mural                Mural   @relation("ExamenMural_mural", fields: [muralId], references: [id], onDelete: Cascade)
+  muralId              String  @map("mural")
+
+  @@index([muralId])
+}
+
+model Aviso {
+  id        String  @id @default(cuid())
+  titulo    String  @default("")
+  contenido String  @default("")
+  fecha     String
+  publicado Boolean @default(false)
+  mural     Mural   @relation("Aviso_mural", fields: [muralId], references: [id], onDelete: Cascade)
+  muralId   String  @map("mural")
+
+  @@index([muralId])
+}
+
+model Asistencia {
+  id       String  @id @default(cuid())
+  alumno   Alumno  @relation("Asistencia_alumno", fields: [alumnoId], references: [id], onDelete: Cascade)
+  alumnoId String  @map("alumno")
+  curso    Curso   @relation("Asistencia_curso", fields: [cursoId], references: [id], onDelete: Cascade)
+  cursoId  String  @map("curso")
+  fecha    String
+  estado   String
+
+  @@unique([alumnoId, fecha])
+  @@index([cursoId])
+}
+
+model Calificacion {
+  id          String  @id @default(cuid())
+  alumno      Alumno  @relation("Calificacion_alumno", fields: [alumnoId], references: [id], onDelete: Cascade)
+  alumnoId    String  @map("alumno")
+  curso       Curso   @relation("Calificacion_curso", fields: [cursoId], references: [id], onDelete: Cascade)
+  cursoId     String  @map("curso")
+  evaluacion  String  @default("")
+  nota        Float
+  observacion String  @default("")
+  fecha       String
+
+  @@index([alumnoId])
+  @@index([cursoId])
+}
